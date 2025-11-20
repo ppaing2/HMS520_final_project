@@ -12,9 +12,15 @@ The overall goal of this final project is to model mean systolic blood pressure 
 We will download three datasets necessary for this analyis from NHANES website: BMI, BP, Demographic files. 
 Then we will merge those three datasets by respondent ID. 
 
-# 2: Create necessary variables
+# 2: Data Cleaning
+
+# 3: Create necessary variables
 We will create a mean SBP (mean_SBP) variable by taking average of three SBP measurements. 
 We will also create a categorical age variable. 
 We will model systolic blood pressure as dependent variable by body mass index as independent variable by age group.  
 
 We will use data.table package, ggplot2 packages. 
+
+# 4: Plotting 
+
+# 5: Modelling
