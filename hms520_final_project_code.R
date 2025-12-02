@@ -1,6 +1,7 @@
 library(haven)
 library(data.table)
 library(dplyr)
+library(ggplot2)
 
 # read bp dataset
 bp <- read_xpt("BPXO_L.xpt")
@@ -12,15 +13,58 @@ nhanes <- merge(bp, bmi, by = "SEQN", all = TRUE)
 nhanes <- merge(nhanes, demo, by = "SEQN", all = TRUE)
 nhanes_dt <- setDT(nhanes)
 
+# Create average BP
 nhanes_dt[, mean_sbp := rowMeans(.SD, na.rm = TRUE), 
           .SDcols = c("BPXOSY1", "BPXOSY2", "BPXOSY3")]
 
 summary(nhanes_dt$mean_sbp, na.rm = TRUE)
 
-bp_missing_by_bmi <- nhanes_dt %>%
-  group_by(BMXBMI) %>%
+# Create age group
+summary(nhanes_dt$RIDAGEYR, na.rm = TRUE)
+nhanes_dt[, age_gp := cut(
+  RIDAGEYR, 
+  breaks = c(0, 8, 18, 40, 60,Inf), 
+  labels = c("0-8", "9–17", "18–39", "40–59", "60+"),
+  right = FALSE
+)]
+table(nhanes_dt$age_gp, useNA = "always")
+
+# Limit the dataset to >8 years old because BP is not measured for children <8 years old. 
+nhanes_final <- nhanes_dt[age_gp != "0-8"]
+
+# Diagnose missing percent of SBP by age
+bp_missing_by_age <- nhanes_final %>%
+  group_by(age_gp) %>%
   summarise(
     n = n(),
-    missing_bp = sum(is.na(mean_sbp)),
     missing_percent = round(mean(is.na(mean_sbp)) * 100, 2)
   )
+
+## Plotting BP by BMI
+nhanes_dt <- nhanes_dt[order(age_gp, BMXBMI)]
+
+summary(nhanes_final$mean_sbp)
+
+# Write function for plotting 
+plot_data <- function(nhanes_final) {
+  ggplot(nhanes_final) + 
+  geom_point(
+    mapping = aes(x = BMXBMI, y = mean_sbp, color = age_gp)) +
+    geom_point()
+}
+
+bp_bmi_plot <- ggplot(nhanes_final, aes(x = BMXBMI, y = mean_sbp)) + 
+  geom_point() +
+  labs(
+    title = "Systolic Blood Pressure by Body Mass Index",
+    x = "Body Mass Index (kg/m²)",
+    y = "Mean SBP (mmHg)"
+  )
+
+bp_bmi_age_plot <- ggplot(nhanes, aes(x = BMXBMI)) + 
+  geom_point(aes(y = mean_sbp)) + 
+  labs(
+    title = "Systolic Blood Pressure by Body Mass Index", 
+    x = "Body Masss Index (kg/m2)", 
+    y = "Mean SBP (mmHg)"
+  ) 
