@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-setwd("~/HMS520_final_project")
-=======
->>>>>>> c733c660f2fa304bed6b7af0a78ee3dfbe91c06f
 library(haven)
 library(data.table)
 library(dplyr)
@@ -44,44 +40,42 @@ bp_missing_by_age <- nhanes_final %>%
     missing_percent = round(mean(is.na(mean_sbp)) * 100, 2)
   )
 
-## Plotting BP by BMI
-nhanes_dt <- nhanes_dt[order(age_gp, BMXBMI)]
-
-summary(nhanes_final$mean_sbp)
-
-<<<<<<< HEAD
-# Plotting 
-=======
-# Write function for plotting 
-plot_data <- function(nhanes_final) {
-  ggplot(nhanes_final) + 
-  geom_point(
-    mapping = aes(x = BMXBMI, y = mean_sbp, color = age_gp)) +
-    geom_point()
-}
-
->>>>>>> c733c660f2fa304bed6b7af0a78ee3dfbe91c06f
+## Plotting 
+# SBP by BMI plot
 bp_bmi_plot <- ggplot(nhanes_final, aes(x = BMXBMI, y = mean_sbp)) + 
   geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "#E74C3C", linewidth = 1) + 
   labs(
-    title = "Systolic Blood Pressure by Body Mass Index",
-    x = "Body Mass Index (kg/m²)",
+    title = "Systolic Blood Pressure by Body Mass Index", 
+    x = "Body Mass Index (kg/m²)", 
     y = "Mean SBP (mmHg)"
-  )
+  ) 
 
-<<<<<<< HEAD
+# SBP by BMI across age groups plot
 bp_bmi_age_plot <- ggplot(nhanes, aes(x = BMXBMI, y = mean_sbp)) + 
   geom_point() +
-  facet_wrap(~ age_gp) +
+  geom_smooth(method = "lm", se = FALSE, color = "#E74C3C", linewidth = 1) + 
+  facet_wrap(~ age_gp, nrow = 2) +
   labs(
     title = "Systolic Blood Pressure by Body Mass Index by Age Group", 
     x = "Body Mass Index (kg/m²)", 
-=======
-bp_bmi_age_plot <- ggplot(nhanes, aes(x = BMXBMI)) + 
-  geom_point(aes(y = mean_sbp)) + 
-  labs(
-    title = "Systolic Blood Pressure by Body Mass Index", 
-    x = "Body Masss Index (kg/m2)", 
->>>>>>> c733c660f2fa304bed6b7af0a78ee3dfbe91c06f
     y = "Mean SBP (mmHg)"
   ) 
+
+# Diagnostics: plotting SBP and BMI by age separately
+bp_age_plot <- ggplot(nhanes_final, aes(x = RIDAGEYR, y = mean_sbp)) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "#E74C3C", linewidth = 1) + 
+  labs(
+    title = "Systolic Blood Pressure by Age",
+    x = "Age (Years)",
+    y = "Mean SBP (mmHg)"
+  )
+
+## Modelling
+# Raw model - SBP on BMI
+
+# Adjusted model - SBP on BMI adjusted by age group 
+
+# Linear Mixed Effect Model
+
