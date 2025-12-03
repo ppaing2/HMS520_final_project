@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 setwd("~/HMS520_final_project")
+=======
+>>>>>>> c733c660f2fa304bed6b7af0a78ee3dfbe91c06f
 library(haven)
 library(data.table)
 library(dplyr)
@@ -46,7 +49,18 @@ nhanes_dt <- nhanes_dt[order(age_gp, BMXBMI)]
 
 summary(nhanes_final$mean_sbp)
 
+<<<<<<< HEAD
 # Plotting 
+=======
+# Write function for plotting 
+plot_data <- function(nhanes_final) {
+  ggplot(nhanes_final) + 
+  geom_point(
+    mapping = aes(x = BMXBMI, y = mean_sbp, color = age_gp)) +
+    geom_point()
+}
+
+>>>>>>> c733c660f2fa304bed6b7af0a78ee3dfbe91c06f
 bp_bmi_plot <- ggplot(nhanes_final, aes(x = BMXBMI, y = mean_sbp)) + 
   geom_point() +
   labs(
@@ -55,11 +69,19 @@ bp_bmi_plot <- ggplot(nhanes_final, aes(x = BMXBMI, y = mean_sbp)) +
     y = "Mean SBP (mmHg)"
   )
 
+<<<<<<< HEAD
 bp_bmi_age_plot <- ggplot(nhanes, aes(x = BMXBMI, y = mean_sbp)) + 
   geom_point() +
   facet_wrap(~ age_gp) +
   labs(
     title = "Systolic Blood Pressure by Body Mass Index by Age Group", 
     x = "Body Mass Index (kg/m²)", 
+=======
+bp_bmi_age_plot <- ggplot(nhanes, aes(x = BMXBMI)) + 
+  geom_point(aes(y = mean_sbp)) + 
+  labs(
+    title = "Systolic Blood Pressure by Body Mass Index", 
+    x = "Body Masss Index (kg/m2)", 
+>>>>>>> c733c660f2fa304bed6b7af0a78ee3dfbe91c06f
     y = "Mean SBP (mmHg)"
   ) 
