@@ -1,5 +1,6 @@
 ### HMS520 final project: Autumn 2025
 ### Submitted by Zaw Wai Yan Bo and Pyone Yadanar Paing
+### Last updated by 12/4/2025
 ## Load libraries 
 library(haven)
 library(data.table)
@@ -8,6 +9,8 @@ library(ggplot2)
 library(lme4)
 
 ### Data Preparation and cleaning
+## Datasets are downloaded from website below. 
+# https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?Cycle=2021-2023
 ## Read datasets
 bp <- read_xpt("BPXO_L.xpt")
 bmi <- read_xpt("BMX_L.xpt")
@@ -110,7 +113,7 @@ plot_xy <- function(data, xvar, yvar, facet_var = NULL) {
   y <- sym(yvar)
   
   p <- ggplot(data, aes(x = !!x, y = !!y)) +
-    geom_point(color = "lightblue", alpha = 0.6) +   # << light blue points
+    geom_point(alpha = 0.6) +   
     geom_smooth(method = "lm", se = FALSE, color = "red") +
     labs(
       title = paste(yvar, "vs", xvar),
@@ -143,7 +146,18 @@ sbp_bmi_age_plot <- plot_xy(nhanes_final, "BMXBMI", "mean_sbp",
     y = "Systolic Blood Pressure (mmHg)"
   ) 
 
+## Modelling 
+# Simple Linear Regression Model
+lm_model <- lm(mean_sbp~BMXBMI, data = nhanes_final)
+summary(lm_model)
+
+lm_model_adjusted <- lm(mean_sbp~BMXBMI+RIDAGEYR, data = nhanes_final)
+summary(lm_model_adjusted)
+
 ## Modelling as Group-specific Regression 
+# split the dataset by age group
+nhanes_group <- split(nhanes_final, nhanes_final$age_gp)
+
 # Model SBP on BMI
 models <- lapply(nhanes_group, function(dt) lm(mean_sbp ~ BMXBMI, data = dt))
 
@@ -155,7 +169,7 @@ for (key in names(nhanes_group)) {
 # Recombine into main dataset
 nhanes_final <- rbindlist(nhanes_group)
 
-# plot fit
+# Plot fit
 nhanes_final <- nhanes_final[order(age_gp, BMXBMI)]
 ggplot(nhanes_final, aes(x = BMXBMI)) +
   geom_point(aes(y = mean_sbp), alpha = 0.3) +
@@ -167,6 +181,5 @@ ggplot(nhanes_final, aes(x = BMXBMI)) +
     y = "Observed and Fitted SBP"
   )
 
-sapply(models, function(m) coef(m)[["BMXBMI"]])
-
-
+# View summary of models 
+lapply(models, summary)
