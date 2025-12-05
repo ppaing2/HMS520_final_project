@@ -5,6 +5,7 @@ library(haven)
 library(data.table)
 library(dplyr)
 library(ggplot2)
+library(lme4)
 
 ### Data Preparation and cleaning
 ## Read datasets
@@ -16,6 +17,8 @@ demo <- read_xpt("DEMO_L.xpt")
 nhanes <- merge(merge(bp, bmi, by = "SEQN", all = TRUE),
                 demo, by = "SEQN", all = TRUE)
 nhanes_dt <- setDT(nhanes)
+View(nhanes_dt)
+# Create average BP
 
 # Limit the dataset to 20+ years old because we are using adult BMI categories
 nhanes_dt <- nhanes_dt[RIDAGEYR >= 20]
@@ -140,10 +143,30 @@ sbp_bmi_age_plot <- plot_xy(nhanes_final, "BMXBMI", "mean_sbp",
     y = "Systolic Blood Pressure (mmHg)"
   ) 
 
-## Modelling
-# Raw model - SBP on BMI
+## Modelling as Group-specific Regression 
+# Model SBP on BMI
+models <- lapply(nhanes_group, function(dt) lm(mean_sbp ~ BMXBMI, data = dt))
 
-# Adjusted model - SBP on BMI adjusted by age group 
+for (key in names(nhanes_group)) {
+  nhanes_group[[key]][, mean_sbp_fit := predict(models[[key]], 
+                                                nhanes_group[[key]])]
+}
 
-# Linear Mixed Effect Model
+# Recombine into main dataset
+nhanes_final <- rbindlist(nhanes_group)
+
+# plot fit
+nhanes_final <- nhanes_final[order(age_gp, BMXBMI)]
+ggplot(nhanes_final, aes(x = BMXBMI)) +
+  geom_point(aes(y = mean_sbp), alpha = 0.3) +
+  geom_line(aes(y = mean_sbp_fit, color = age_gp), linewidth = 1) +
+  facet_wrap(~ age_gp) +
+  labs(
+    title = "Group-Specific Regression: SBP vs BMI by Age Group",
+    x = "BMI",
+    y = "Observed and Fitted SBP"
+  )
+
+sapply(models, function(m) coef(m)[["BMXBMI"]])
+
 
