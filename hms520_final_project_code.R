@@ -6,6 +6,7 @@ library(haven)
 library(data.table)
 library(dplyr)
 library(ggplot2)
+library(rlang)
 library(lme4)
 
 ### Data Preparation and cleaning
@@ -106,7 +107,6 @@ sbp_bmi_hist <- hist_plot(nhanes_final, "mean_sbp", "bmi_cat") +
   )
 
 ## Write function for scatter plots
-library(rlang)
 plot_xy <- function(data, xvar, yvar, facet_var = NULL) {
   # Convert character variable names to symbols
   x <- sym(xvar)
@@ -141,7 +141,7 @@ sbp_bmi_plot <- plot_xy(nhanes_final, "BMXBMI", "mean_sbp") + labs(
 sbp_bmi_age_plot <- plot_xy(nhanes_final, "BMXBMI", "mean_sbp", 
                             facet_var = "age_gp") +
   labs(
-    title = "Systolic Blood Pressure by BMI", 
+    title = "Systolic Blood Pressure by BMI across Age Groups", 
     x = "Body Mass Index (kg/m²)", 
     y = "Systolic Blood Pressure (mmHg)"
   ) 
@@ -151,6 +151,7 @@ sbp_bmi_age_plot <- plot_xy(nhanes_final, "BMXBMI", "mean_sbp",
 lm_model <- lm(mean_sbp~BMXBMI, data = nhanes_final)
 summary(lm_model)
 
+# Linear Regression Model adjusted for age
 lm_model_adjusted <- lm(mean_sbp~BMXBMI+RIDAGEYR, data = nhanes_final)
 summary(lm_model_adjusted)
 
