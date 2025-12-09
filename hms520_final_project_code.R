@@ -7,7 +7,6 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(rlang)
-library(lme4)
 
 ### Data Preparation and cleaning
 ## Datasets are downloaded from website below. 
